@@ -4,6 +4,10 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+#  datasource:
+#    url: jdbc:mysql://localhost:5440/sa
+#    username: sa
+#    password: sa
   h2:
     console:
       enabled: true
