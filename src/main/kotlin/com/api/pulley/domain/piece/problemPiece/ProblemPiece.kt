@@ -5,8 +5,10 @@ import com.api.pulley.domain.problem.Problem
 import com.api.pulley.domain.piece.Piece
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
+import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 
 @Entity
 class ProblemPiece(
@@ -17,6 +19,5 @@ class ProblemPiece(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "piece_id")
     val piece: Piece,
-
     ): IdAuditEntity() {
 }

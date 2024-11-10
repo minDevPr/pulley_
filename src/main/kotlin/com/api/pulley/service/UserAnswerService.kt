@@ -12,21 +12,17 @@ import org.springframework.stereotype.Service
 class UserAnswerService(
     private val userAnswerRepository: UserAnswerRepository,
 ) {
-    fun save(user: User,
-             piece: Piece,
-             problem: Problem,
-             userAnswer: Int,
-             )
-    : UserAnswer {
+    // @PersistenceContext
+    // private lateinit var entityManager: EntityManager
+
+    fun save(user: User, piece: Piece, problem: Problem, userAnswer: Int): UserAnswer {
         return UserAnswer(
             user = user,
             piece = piece,
             problem = problem,
             answer = userAnswer,
-            markResultType = if (problem.answer == userAnswer) MarkResultType.PASS else MarkResultType.FAIL
-        ).run {
-            userAnswerRepository.save(this)
-        }
+            markResultType = marked(problem,userAnswer)
+        )
     }
 
     fun saveAll(
@@ -34,18 +30,24 @@ class UserAnswerService(
         piece: Piece,
         problemRequests: Map<Problem, Int>
     ): List<UserAnswer> {
-        val userAnswers = problemRequests.map { (problem, userAnswer) ->
-            UserAnswer(
-                user = user,
-                piece = piece,
-                problem = problem,
-                answer = userAnswer,
-                markResultType = if (problem.answer == userAnswer)
-                    MarkResultType.PASS
-                else
-                    MarkResultType.FAIL
-            )
+        val userAnswers = userAnswerRepository.findAllByUserAndPieceAndProblemIn(user, piece, problemRequests.keys)
+
+        val result = problemRequests.map { (problem, userAnswer) ->
+            userAnswers.find { it.problem == problem }
+                ?.let { it.update(userAnswer, marked(problem,userAnswer)) }
+                ?: save(user, piece, problem, userAnswer)
         }
-        return userAnswerRepository.saveAll(userAnswers)
+        return userAnswerRepository.saveAll(result)
+    }
+
+    // val batchedResults = result.chunked(50).flatMap { batch ->
+    //     val savedBatch = userAnswerRepository.saveAll(batch)
+    //     entityManager.flush()
+    //     entityManager.clear()
+    //     savedBatch
+    // }
+
+    private fun marked(problem: Problem, userAnswer: Int): MarkResultType {
+        return if (problem.answer == userAnswer) MarkResultType.PASS else MarkResultType.FAIL
     }
 }

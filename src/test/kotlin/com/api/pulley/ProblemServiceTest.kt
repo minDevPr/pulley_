@@ -8,11 +8,14 @@ import com.api.pulley.domain.user.repository.UserRepository
 import com.api.pulley.internal.LevelType
 import com.api.pulley.internal.ProblemType
 import com.api.pulley.internal.RoleType
+import com.api.pulley.internal.Utils
 import com.api.pulley.service.UserPieceService
 import com.api.pulley.service.PieceService
 import com.api.pulley.service.ProblemService
 import com.api.pulley.web.dto.request.PieceCreateRequest
 import com.api.pulley.web.dto.request.PieceMarkRequest
+import org.hibernate.boot.jaxb.SourceType
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,27 +33,38 @@ class ProblemServiceTest(
 ) {
 
     @Test
-    fun problemGet() {
-        val result = problemService.readAll(totalCount = 10,
-            unitCodeList = listOf("uc1580","uc1540","uc1583","uc1564","uc1535","uc1578","uc1541","uc1573","uc1576"),
-            levelType = LevelType.MIDDLE,
-            problemType = ProblemType.ALL
+    fun problem_get_byFilter() {
+        val unitCodes = unitCodeRepository.findAll()
+            .map { it.unitCode }
+
+        val totalCount = 10
+        val levelType = LevelType.entries.random()
+        val problemType = ProblemType.entries.random()
+
+        val result = problemService.readAll(
+            totalCount = totalCount,
+            unitCodeList = unitCodes,
+            levelType = levelType,
+            problemType = problemType
         )
 
-        // - 상 선택시 : **하** 문제 20%, **중** 문제 30%, **상** 문제 50%
-        // - 중 선택시 : **하** 문제 25%, **중** 문제 50%, **상** 문제 25%
-        // - 하 선택시 : **하** 문제 50%, **중** 문제 30%, **상** 문제 20%
+        // LevelType 에 따른 비율 검증
+        val (low, middle, high) = levelType.toRate(totalCount)
 
-        result.map {
-            println(it.unitCode.name)
-            println(it.level)
-            println("-------------------------")
+        Assertions.assertEquals(low.second, result.count { it.level == 1 }.toLong())
+        Assertions.assertEquals(middle.second, result.count { it.level in 2..4 }.toLong())
+        Assertions.assertEquals(high.second, result.count { it.level == 5 }.toLong())
+
+        // problemType 검증
+        if (problemType != ProblemType.ALL) {
+            result.forEach { problem ->
+                Assertions.assertEquals(problemType, problem.problemType)
+            }
         }
-        println(result.size)
     }
 
     @Test
-    fun save() {
+    fun save_piece() {
         val user = userRepository.findByRoleType(RoleType.TEACHER).last()
         val problems = problemRepository.findAll()
             .shuffled()
@@ -58,52 +72,62 @@ class ProblemServiceTest(
 
         val request = PieceCreateRequest(
             problemIds = problems.map { it.id!! }.toSet(),
-            name = "문제를 풀어보아요"
+            name = "수학2"
         )
-        pieceService.save(user.id!!, request = request)
+        val result = pieceService.save(user.id!!, request = request)
+
+        Assertions.assertEquals(request.name, result.piece.name)
+        Assertions.assertEquals(user.name, result.piece.user.name )
+        Assertions.assertTrue(result.problems.map { it.id }.containsAll(request.problemIds))
     }
 
     @Test
-    fun exam(){
+    fun exam_to_user(){
         val user = userRepository.findByRoleType(RoleType.STUDENT)
             .shuffled()
-            .take(2)
+            .take(4)
 
+        val userIds = user.map { it.id!! }.toList()
         val piece = pieceRepository.findAll().last()
-        examService.save(user.map { it.id!! }.toList(), piece.id!!)
-        // examService.save(listOf(1,4),piece.id!!)
+        val result = examService.save(userIds, piece.id!!)
+
+        Assertions.assertTrue(result.users.map { it.id }.containsAll(userIds))
     }
 
+
     @Test
-    fun readAllProblems() {
-        val response = pieceService.get(
-            userId = 1L,
-            pieceId = 1L
-        )
-        response.map {
-            println(it.id)
-            println(it.unitCode.name)
-            println(it.level)
-            println(it.problemType)
-            println("-------------------------")
+    fun read_problem_of_piece() {
+        // val user = userRepository.findByRoleType(RoleType.STUDENT).last()
+        val piece = pieceRepository.findById(1L).orElseThrow()
+
+        val result = pieceService.read(5L, 1L)
+        result?.map {
+            println("id : " + it.id)
+            println("unitcode : " + it.unitCode.name)
+            println("level : " + it.level)
         }
     }
 
     @Test
     fun mark() {
-        val user = userRepository.findByRoleType(RoleType.STUDENT).last()
-        val piece = pieceRepository.findAll().last()
+        // val user = userRepository.findByRoleType(RoleType.STUDENT).last()
+        val piece = pieceRepository.findById(1L).orElseThrow()
         val problemPiece = problemPieceRepository.findByPiece(piece)
 
         val requests = problemPiece.map {
             PieceMarkRequest(
                 problemId = it.problem.id!!,
-                answer = 1,
+                answer = (1..5).random(),
             )
         }
-        val res = pieceService.mark(user.id!!, piece.id!!, requests)
-        res.map {
-            println(it.markResultType.name)
-        }
+        val result = pieceService.mark(2L, 1L, requests)
+    }
+
+    @Test
+    fun anlayze() {
+        val start = System.currentTimeMillis()
+        val res = pieceService.analyze(1L)
+        val end = System.currentTimeMillis()
+        println("ms : " + end.minus(start))
     }
 }

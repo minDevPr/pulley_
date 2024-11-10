@@ -6,6 +6,9 @@ import com.api.pulley.domain.piece.repository.PieceRepository
 import com.api.pulley.domain.user.repository.UserRepository
 import com.api.pulley.domain.piece.userPiece.UserPiece
 import com.api.pulley.domain.user.User
+import com.api.pulley.web.dto.response.PieceResponse.Companion.toResponse
+import com.api.pulley.web.dto.response.UserPieceResponse
+import com.api.pulley.web.dto.response.UserResponse.Companion.toResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -16,14 +19,19 @@ class UserPieceService(
     private val userRepository: UserRepository,
 ) {
     @Transactional
-    fun save(userIds: List<Long>, pieceId: Long) {
+    fun save(userIds: List<Long>, pieceId: Long): UserPieceResponse {
         val piece = pieceRepository.findById(pieceId).orElseThrow()
         val userPieceMap = userPieceRepository.findAllByPiece(piece).associateBy { it.user.id }
 
-        userRepository.findAllByIdIn(userIds)
+        val userPieces = userRepository.findAllByIdIn(userIds)
             .filterNot { userPieceMap.containsKey(it.id) }
             .map { UserPiece(user = it, piece = piece) }
             .run { userPieceRepository.saveAll(this) }
+
+        return UserPieceResponse(
+            piece = piece.toResponse(),
+            users = userPieces.plus(userPieceMap.values).map { it.user.toResponse() }
+        )
     }
 
     fun valid(piece: Piece, user: User): Boolean {

@@ -9,9 +9,14 @@ import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
+import jakarta.persistence.Index
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 
 @Entity
+@Table(
+    indexes = [Index(name = "idx_user_answer_piece", columnList = "piece_id")]
+)
 class UserAnswer(
     @ManyToOne(fetch= FetchType.LAZY)
     val user: User,
@@ -22,8 +27,16 @@ class UserAnswer(
     @ManyToOne(fetch= FetchType.LAZY)
     val piece: Piece,
 
-    val answer: Int,
+    var answer: Int,
 
-    @Enumerated(EnumType.STRING) val markResultType: MarkResultType,
+    @Enumerated(EnumType.STRING) var markResultType: MarkResultType,
 ): IdAuditEntity() {
+
+    fun update(newAnswer: Int,
+               newMarkResultType: MarkResultType,
+               ): UserAnswer
+    = apply {
+        answer = newAnswer
+        markResultType = newMarkResultType
+    }
 }
