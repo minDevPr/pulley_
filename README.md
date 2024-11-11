@@ -87,18 +87,20 @@ user에 대한 인덱스 스캔을 하고있지만, 학습지의 user에 대한 
 - 학습지의 문제별 정답률 실행계획 분석
 
 ```bash
--> Table scan on <temporary>  (actual time=9.36..9.55 rows=300 loops=1)
-    -> Aggregate using temporary table  (actual time=9.35..9.35 rows=300 loops=1)
-        -> Nested loop inner join  (cost=413 rows=1005) (actual time=0.795..5.64 rows=1800 loops=1)
-            -> Nested loop inner join  (cost=61.7 rows=300) (actual time=0.641..1.51 rows=300 loops=1)
-                -> Table scan on uc  (cost=3.95 rows=37) (actual time=0.378..0.405 rows=37 loops=1)
-                -> Index lookup on p using idx_problem_unit_code (unit_code=uc.unit_code)  (cost=0.772 rows=8.11) (actual time=0.0213..0.029 rows=8.11 loops=37)
-            -> Index lookup on ua using idx_user_answer_piece_problem (piece_id=5, problem_id=p.id)  (cost=0.839 rows=3.35) (actual time=0.00932..0.0132 rows=6 loops=300)
+-> Table scan on <temporary>  (actual time=13.7..13.9 rows=300 loops=1)
+    -> Aggregate using temporary table  (actual time=13.7..13.7 rows=300 loops=1)
+        -> Nested loop left join  (cost=365 rows=463) (actual time=1.53..9.06 rows=1800 loops=1)
+            -> Nested loop inner join  (cost=203 rows=109) (actual time=1.1..4.92 rows=300 loops=1)
+                -> Nested loop inner join  (cost=61.7 rows=300) (actual time=0.873..1.68 rows=300 loops=1)
+                    -> Table scan on uc  (cost=3.95 rows=37) (actual time=0.407..0.435 rows=37 loops=1)
+                    -> Index lookup on p using idx_problem_unit_code (unit_code=uc.unit_code)  (cost=0.772 rows=8.11) (actual time=0.0273..0.0328 rows=8.11 loops=37)
+                -> Filter: (pp.piece_id = 5)  (cost=0.336 rows=0.363) (actual time=0.00811..0.0106 rows=1 loops=300)
+                    -> Index lookup on pp using FKdt973gcxe937l9k6133b5i2sl (problem_id=p.id)  (cost=0.336 rows=1.34) (actual time=0.00769..0.0101 rows=3.7 loops=300)
+            -> Index lookup on ua using idx_user_answer_piece_problem (piece_id=5, problem_id=p.id)  (cost=1.07 rows=4.25) (actual time=0.0119..0.0132 rows=6 loops=300)
 
 ```
 
 problem과 user의 수가 많아지고있으면 임시테이블에 대한 메모리가 커짐,
-
 두번의 중첩 루프를 돌게되는데 unitCode로 인한 중첩문과  problem과의 중첩문으로 1800개 행 임시테이블에 저장됨  → 현재 학습지의 문제를 푼 user가 6명이게되지만 user수와 problem 이 많아 질수록 메모리도 커짐
 
 ### 해결
