@@ -38,8 +38,9 @@ batch insert vs 단일 insert
 - 배치insert 적용 전 → 359ms
 - 배치insert 적용 후 → 167 ms
 
-### batch insert의 문제
 
+### batch insert의 문제
+```
 JPA는 각 엔터티를 영속화할 때 Id가 필요함 그러므로 id 생성전략을 
 
 `@GeneratedValue(strategy = GenerationType.*IDENTITY*)`으로 둘 경우 
@@ -57,7 +58,7 @@ jdbc를 사용하여 batch insert로 해결
 그럼 영속성을 포기해야되는건가?
 
 → 해당 프로젝트에서는 batch insert,update 후 바로 다시 조회 함 그럼 영속관리 확보
-
+```
 
 
 
