@@ -6,6 +6,7 @@ import com.api.pulley.web.dto.request.UserPieceCreateRequest
 import com.api.pulley.web.dto.request.PieceCreateRequest
 import com.api.pulley.web.dto.request.PieceMarkRequest
 import com.api.pulley.web.dto.response.MarkResultResponse
+import com.api.pulley.web.dto.response.PieceAnalyzeResponse
 import com.api.pulley.web.dto.response.ProblemPieceResponse
 import com.api.pulley.web.dto.response.ProblemResponse
 import com.api.pulley.web.dto.response.UserPieceResponse
@@ -42,18 +43,26 @@ class PieceController(
 
     @GetMapping("problems/{pieceId}")
     fun read(
-        @RequestParam userId: Long,
         @PathVariable pieceId: Long,
+        @RequestParam userId: Long,
     ): List<ProblemResponse>? {
         return pieceService.read(userId,pieceId)
     }
 
     @PutMapping("problems/{pieceId}")
     fun mark(
-        @RequestParam userId: Long,
         @PathVariable pieceId: Long,
+        @RequestParam userId: Long,
         @RequestBody request: List<PieceMarkRequest>,
     ): List<MarkResultResponse>{
         return pieceService.mark(userId,pieceId,request)
     }
+
+    @GetMapping("analyze/{pieceId}")
+    fun analyze(
+        @PathVariable pieceId: Long,
+    ): PieceAnalyzeResponse {
+        return pieceService.analyze(pieceId)
+    }
+
 }

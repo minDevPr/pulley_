@@ -9,7 +9,6 @@ data class ProblemResponse(
     val id: Long,
     val unitCode: UnitCodeResponse,
     val level: Int,
-    val answer: Int,
     val problemType: ProblemType,
 ) {
     companion object{
@@ -18,10 +17,7 @@ data class ProblemResponse(
                 id = id ?: throw NoSuchElementException("Not found problem"),
                 unitCode = unitCode.toResponse(),
                 level = level,
-                answer = answer,
                 problemType = problemType,
             )
-
-
     }
 }

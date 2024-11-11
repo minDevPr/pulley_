@@ -32,7 +32,7 @@ import jakarta.persistence.Table
     ]
 )
 class Problem(
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "unit_code")
     val unitCode: UnitCode,
     val level: Int,

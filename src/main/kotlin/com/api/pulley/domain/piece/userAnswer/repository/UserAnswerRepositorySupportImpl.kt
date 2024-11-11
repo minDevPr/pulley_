@@ -5,6 +5,7 @@ import com.api.pulley.domain.piece.QPiece
 import com.api.pulley.domain.piece.problemPiece.QProblemPiece
 import com.api.pulley.domain.piece.userAnswer.QUserAnswer
 import com.api.pulley.domain.problem.Problem
+import com.api.pulley.domain.problem.QProblem
 import com.api.pulley.domain.unitCode.UnitCode
 import com.api.pulley.domain.user.User
 import com.api.pulley.internal.MarkResultType
@@ -17,6 +18,7 @@ import com.api.pulley.web.dto.response.PieceStatisticsResponse
 import com.api.pulley.web.dto.response.UserResponse.Companion.toResponse
 import com.querydsl.core.types.Projections
 import com.querydsl.jpa.impl.JPAQueryFactory
+import java.math.BigDecimal
 
 class UserAnswerRepositorySupportImpl(
     private val query: JPAQueryFactory,
@@ -71,7 +73,6 @@ class UserAnswerRepositorySupportImpl(
                 )
             }
     }
-
     private fun getProblemPieces(pieceId: Long): List<ProblemStatisticsResponse> {
         data class ProblemStats(
             val problem: Problem,
@@ -84,27 +85,32 @@ class UserAnswerRepositorySupportImpl(
             .select(
                 Projections.constructor(
                     ProblemStats::class.java,
-                    QUserAnswer.userAnswer.problem,
-                    QUserAnswer.userAnswer.problem.unitCode,
+                    QProblem.problem,
+                    QProblem.problem.unitCode,
                     QUserAnswer.userAnswer.markResultType.`when`(MarkResultType.PASS).then(1).otherwise(0).sum(),
                     QUserAnswer.userAnswer.count()
                 )
             )
-            .from(QUserAnswer.userAnswer)
-            .leftJoin(QUserAnswer.userAnswer.problem)
-            .leftJoin(QUserAnswer.userAnswer.problem.unitCode)
-            .where(QUserAnswer.userAnswer.piece.id.eq(pieceId))
-            .groupBy(QUserAnswer.userAnswer.problem)
+            .from(QProblemPiece.problemPiece)
+            .join(QProblemPiece.problemPiece.problem, QProblem.problem)
+            .leftJoin(QUserAnswer.userAnswer)
+            .on(
+                QUserAnswer.userAnswer.problem.eq(QProblem.problem),
+                QUserAnswer.userAnswer.piece.id.eq(pieceId)
+            )
+            .where(QProblemPiece.problemPiece.piece.id.eq(pieceId))
+            .groupBy(QProblem.problem)
             .fetch()
             .map { stats ->
                 ProblemStatisticsResponse(
                     problem = stats.problem.toResponse(),
-                    passRate = stats.passCount.toPercentage(stats.totalCount)
+                    passRate = if(stats.totalCount.toInt() > 0)
+                        stats.passCount.toInt().toBigDecimal()
+                            .toPercentage(stats.totalCount.toInt().toBigDecimal())
+                    else BigDecimal.ZERO
                 )
             }
     }
-
-
     private fun countProblems(pieceId: Long): Long {
         return query
             .select(QProblemPiece.problemPiece.count())

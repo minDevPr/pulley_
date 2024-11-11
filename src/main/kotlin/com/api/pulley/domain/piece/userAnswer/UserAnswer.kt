@@ -1,6 +1,6 @@
 package com.api.pulley.domain.piece.userAnswer
 
-import com.api.pulley.domain.base.IdAuditEntity
+import com.api.pulley.domain.base.IdEntity
 import com.api.pulley.domain.piece.Piece
 import com.api.pulley.domain.problem.Problem
 import com.api.pulley.domain.user.User
@@ -15,8 +15,18 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(
-    indexes = [Index(name = "idx_user_answer_piece", columnList = "piece_id")]
+    indexes = [
+        Index(
+            name = "idx_user_answer_piece_user_mark",
+            columnList = "piece_id,user_id,mark_result_type"
+        ),
+        Index(
+            name = "idx_user_answer_piece_problem",
+            columnList = "piece_id,problem_id"
+        )
+    ]
 )
+
 class UserAnswer(
     @ManyToOne(fetch= FetchType.LAZY)
     val user: User,
@@ -30,7 +40,7 @@ class UserAnswer(
     var answer: Int,
 
     @Enumerated(EnumType.STRING) var markResultType: MarkResultType,
-): IdAuditEntity() {
+): IdEntity() {
 
     fun update(newAnswer: Int,
                newMarkResultType: MarkResultType,
