@@ -17,7 +17,7 @@
 
 ### 해결
 
- - Batch Insert 적용
+**방법: Batch Insert 적용**
 
 - DB 서버 부하 감소
 - 네트워크 통신 비용 감소
