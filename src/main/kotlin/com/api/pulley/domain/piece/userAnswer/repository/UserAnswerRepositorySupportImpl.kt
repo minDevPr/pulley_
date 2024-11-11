@@ -6,6 +6,7 @@ import com.api.pulley.domain.piece.problemPiece.QProblemPiece
 import com.api.pulley.domain.piece.userAnswer.QUserAnswer
 import com.api.pulley.domain.problem.Problem
 import com.api.pulley.domain.problem.QProblem
+import com.api.pulley.domain.unitCode.QUnitCode
 import com.api.pulley.domain.unitCode.UnitCode
 import com.api.pulley.domain.user.User
 import com.api.pulley.internal.MarkResultType
@@ -93,6 +94,7 @@ class UserAnswerRepositorySupportImpl(
             )
             .from(QProblemPiece.problemPiece)
             .join(QProblemPiece.problemPiece.problem, QProblem.problem)
+            .join(QProblem.problem.unitCode, QUnitCode.unitCode1)
             .leftJoin(QUserAnswer.userAnswer)
             .on(
                 QUserAnswer.userAnswer.problem.eq(QProblem.problem),
