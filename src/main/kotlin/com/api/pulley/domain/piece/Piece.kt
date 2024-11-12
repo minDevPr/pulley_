@@ -13,6 +13,6 @@ class Piece(
     val name: String,
     @ManyToOne val user: User,
 ): IdAuditEntity() {
-    @OneToMany(mappedBy = "piece") val exams: MutableList<UserPiece> = mutableListOf()
+    @OneToMany(mappedBy = "piece") val users: MutableList<UserPiece> = mutableListOf()
     @OneToMany(mappedBy = "piece") val problems: MutableList<ProblemPiece> = mutableListOf()
 }

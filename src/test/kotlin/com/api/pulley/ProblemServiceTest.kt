@@ -149,7 +149,10 @@ class ProblemServiceTest(
 
     @Test
     fun anlayze() {
-        val res = pieceService.analyze(2L)
+        val res = pieceService.analyze(6L)
+        res.users.map {
+            println(it.name)
+        }
         res.userPieces.map {
             println("학생 id : " + it.user.id)
             println("학생 이름 : " + it.user.name)

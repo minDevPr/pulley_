@@ -4,7 +4,6 @@ import com.api.pulley.service.PieceService
 import com.api.pulley.service.UserPieceService
 import com.api.pulley.web.dto.request.UserPieceCreateRequest
 import com.api.pulley.web.dto.request.PieceCreateRequest
-import com.api.pulley.web.dto.request.PieceMarkRequest
 import com.api.pulley.web.dto.request.PieceMarkRequests
 import com.api.pulley.web.dto.response.MarkResultResponse
 import com.api.pulley.web.dto.response.PieceAnalyzeResponse
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -48,7 +46,7 @@ class PieceController(
         return pieceService.read(pieceId)
     }
 
-    @GetMapping("{pieceId}/problems")
+    @PutMapping("{pieceId}/problems")
     fun mark(
         @PathVariable pieceId: Long,
         @RequestBody request: PieceMarkRequests
@@ -56,7 +54,7 @@ class PieceController(
         return pieceService.mark(request.userId, pieceId, request.marks)
     }
 
-    @GetMapping("{pieceId}/analyze/")
+    @GetMapping("{pieceId}/analyze")
     fun analyze(
         @PathVariable pieceId: Long,
     ): PieceAnalyzeResponse {
