@@ -33,11 +33,11 @@ class PieceService(
 ) {
 
     @Transactional(readOnly = true)
-    fun read(userId: Long, pieceId: Long): List<ProblemResponse>? {
-        val user = userRepository.findById(userId).orElseThrow()
+    fun read(pieceId: Long): List<ProblemResponse>? {
+//        val user = userRepository.findById(userId).orElseThrow()
         val piece = pieceRepository.findById(pieceId).orElseThrow()
 
-        if(!userPieceService.valid(piece,user)) return throw BadRequestException("not valid")
+//        if(!userPieceService.valid(piece,user)) return throw BadRequestException("not valid")
 
         return problemPieceRepository.findProblems(pieceId).map { it.toResponse() }
     }

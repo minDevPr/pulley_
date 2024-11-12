@@ -4,12 +4,13 @@ GET http://localhost:8080/problems?totalCount=10&unitCodeList=uc1529,uc1536,uc15
 Content-Type: application/json
 
 ### 학습지 생성
-POST http://localhost:8080/piece?userId=2
+POST http://localhost:8080/piece
 Content-Type: application/json
 
 {
+  "userId": 1,
   "problemIds": [117,118,119,147,148,149,171,272,273],
-  "name": "구몬1"
+  "name": "선형대수학"
 }
 
 ### 학습지 출제
@@ -21,37 +22,41 @@ Content-Type: application/json
 }
 
 ### 학습지 문제 조회
-GET http://localhost:8080/piece/problems/2?userId=1
+GET http://localhost:8080/piece/2/problems
 Content-Type: application/json
 
 
 ### 문제 채점
-PUT http://localhost:8080/piece/problems/2?userId=3
+PUT http://localhost:8080/piece/2/problems
 Content-Type: application/json
 
-[
-  {
-    "problemId": 117,
-    "answer": 2
-  },
-  {
-    "problemId": 118,
-    "answer": 2
-  },
-  {
-    "problemId": 119,
-    "answer": 2
-  },
-  {
-    "problemId": 147,
-    "answer": 1
-  },
-  {
-    "problemId": 148,
-    "answer": 3
-  }
+{
+  "userId": 1,
+  "marks": [
+      {
+        "problemId": 117,
+        "answer": 2
+      },
+      {
+        "problemId": 118,
+        "answer": 2
+      },
+      {
+        "problemId": 119,
+        "answer": 2
+      },
+      {
+        "problemId": 147,
+        "answer": 1
+      },
+      {
+        "problemId": 148,
+        "answer": 3
+      }
 
-]
+    ]
+}
+
 
 ### 학습지 통계
 GET http://localhost:8080/piece/analyze/2

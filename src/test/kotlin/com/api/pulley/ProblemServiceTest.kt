@@ -8,13 +8,11 @@ import com.api.pulley.domain.user.repository.UserRepository
 import com.api.pulley.internal.LevelType
 import com.api.pulley.internal.ProblemType
 import com.api.pulley.internal.RoleType
-import com.api.pulley.internal.Utils
 import com.api.pulley.service.UserPieceService
 import com.api.pulley.service.PieceService
 import com.api.pulley.service.ProblemService
 import com.api.pulley.web.dto.request.PieceCreateRequest
 import com.api.pulley.web.dto.request.PieceMarkRequest
-import org.hibernate.boot.jaxb.SourceType
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -71,8 +69,9 @@ class ProblemServiceTest(
             // .take(50)
 
         val request = PieceCreateRequest(
+            userId = user.id!!,
             problemIds = problems.map { it.id!! }.toSet(),
-            name = "기하와 벡터"
+            name = "선형대수학"
         )
         val result = pieceService.save(user.id!!, request = request)
 
@@ -97,10 +96,10 @@ class ProblemServiceTest(
 
     @Test
     fun read_problem_of_piece() {
-        val user = userRepository.findByRoleType(RoleType.STUDENT).last()
+//        val user = userRepository.findByRoleType(RoleType.STUDENT).last()
         val piece = pieceRepository.findById(1L).orElseThrow()
 
-        val result = pieceService.read(1L, 5L)
+        val result = pieceService.read(1L)
 
         Assertions.assertNotNull(result)
     }
@@ -150,7 +149,6 @@ class ProblemServiceTest(
 
     @Test
     fun anlayze() {
-        val start = System.currentTimeMillis()
         val res = pieceService.analyze(2L)
         res.userPieces.map {
             println("학생 id : " + it.user.id)
@@ -162,10 +160,6 @@ class ProblemServiceTest(
             println("문제 Id : " + it.problem.id)
             println("정답률 : " + it.passRate)
         }
-
-
-        val end = System.currentTimeMillis()
-        println("ms : " + end.minus(start))
     }
 
     @Test

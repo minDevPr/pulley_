@@ -5,6 +5,7 @@ import com.api.pulley.service.UserPieceService
 import com.api.pulley.web.dto.request.UserPieceCreateRequest
 import com.api.pulley.web.dto.request.PieceCreateRequest
 import com.api.pulley.web.dto.request.PieceMarkRequest
+import com.api.pulley.web.dto.request.PieceMarkRequests
 import com.api.pulley.web.dto.response.MarkResultResponse
 import com.api.pulley.web.dto.response.PieceAnalyzeResponse
 import com.api.pulley.web.dto.response.ProblemPieceResponse
@@ -27,10 +28,9 @@ class PieceController(
 ) {
     @PostMapping
     fun save(
-        @RequestParam userId: Long,
         @RequestBody request: PieceCreateRequest,
     ): ProblemPieceResponse {
-        return pieceService.save(userId, request)
+        return pieceService.save(request.userId, request)
     }
 
     @PostMapping("{pieceId}")
@@ -41,24 +41,22 @@ class PieceController(
        return userPieceService.save(request.studentIds,pieceId)
     }
 
-    @GetMapping("problems/{pieceId}")
+    @GetMapping("{pieceId}/problems")
     fun read(
         @PathVariable pieceId: Long,
-        @RequestParam userId: Long,
     ): List<ProblemResponse>? {
-        return pieceService.read(userId,pieceId)
+        return pieceService.read(pieceId)
     }
 
-    @PutMapping("problems/{pieceId}")
+    @GetMapping("{pieceId}/problems")
     fun mark(
         @PathVariable pieceId: Long,
-        @RequestParam userId: Long,
-        @RequestBody request: List<PieceMarkRequest>,
+        @RequestBody request: PieceMarkRequests
     ): List<MarkResultResponse>{
-        return pieceService.mark(userId,pieceId,request)
+        return pieceService.mark(request.userId, pieceId, request.marks)
     }
 
-    @GetMapping("analyze/{pieceId}")
+    @GetMapping("{pieceId}/analyze/")
     fun analyze(
         @PathVariable pieceId: Long,
     ): PieceAnalyzeResponse {
