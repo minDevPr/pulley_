@@ -88,7 +88,7 @@ class UserAnswerRepositorySupportImpl(
                 PieceStatisticsResponse(
                     user = stats.user.toResponse(),
                     passRate = stats.passCount.toPercentage(totalProblemCount),
-                    totalRate = actualTotalSolvedCount.toBigDecimal().toPercentage(totalProblemCount.toBigDecimal()), // 수정된 부분
+                    totalRate = actualTotalSolvedCount.toBigDecimal().toPercentage(totalProblemCount.toBigDecimal()),
                     notSolvedCount = totalProblemCount.toInt() - actualTotalSolvedCount
                 )
             }
