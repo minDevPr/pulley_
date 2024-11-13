@@ -1,5 +1,6 @@
 # ERD
-![image](https://github.com/user-attachments/assets/e2b7f86e-d2dc-45ea-a63f-09bd1dad7d0e)
+![image](https://github.com/user-attachments/assets/c2997531-f379-4075-8b22-688658b4bded)
+
 
 
 ## 학습지 생성과, 학생의 문제 채점에 대한 다수의 Insert 쿼리 발생
